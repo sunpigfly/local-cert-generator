@@ -1,39 +1,28 @@
 # HTTPS for `localhost`
+本地环境生成https证书脚本   
 
-A set of scripts to quickly generate a HTTPS certificate for your local development environment.
-
-## How-to
-
-1. Clone this repository and `cd` into it:
-
-```
-git clone https://github.com/dakshshah96/local-cert-generator.git
+**1. 克隆库,cd 进入目录**
+```sh
+git clone https://github.com/chuchur-china/local-cert-generator.git
 cd local-cert-generator
 ```
-2. Run the script to create a root certificate:
-
+**2. 运行脚本以创建根证书：**   
 ```
 sh createRootCA.sh
 ```
+**3 . 将刚刚生成的根证书添加到可信证书列表中。此步骤取决于您运行的操作系统：**
 
-3. Add the root certificate we just generated to your list of trusted certificates. This step depends on the operating system you're running:
+macOS：打开Keychain Access并将根证书导入您的系统钥匙串。然后将证书标记为受信任。
+>注意：您可能需要重新启动浏览器才能正确加载新受信任的根证书。
 
-    - **macOS**: Open Keychain Access and import the root certificate to your System keychain. Then mark the certificate as trusted.
+**4.运行脚本以创建域证书localhost：**
 
-    ![Trust root certificate](https://cdn-images-1.medium.com/max/1600/1*NWwMb0yV9ClHDj87Kug9Ng.png)
-
-    - **Linux**: Depending on your Linux distribution, you can use `trust`, `update-ca-certificates` or another command to mark the generated root certificate as trusted.
-
-*Note*: You may need to restart your browser to load the newly trusted root certificate correctly.
-
-4. Run the script to create a domain certificate for `localhost`: 
-
-```
+```sh
 sh createSelfSigned.sh
 ```
+**5. 拷贝server.key和server.crt 到项目对应的目录 在相关配置启用即可**
 
-5. Move `server.key` and `server.crt` to an accessible location on your server and include them when starting it. In an Express app running on Node.js, you'd do something like this:
-
+**Node中的使用**
 ```js
 var path = require('path')
 var fs = require('fs')
@@ -48,4 +37,20 @@ var certOptions = {
 var app = express()
 
 var server = https.createServer(certOptions, app).listen(443)
+```
+
+**devServer中的使用**
+```js
+const fs = require('fs')
+const path = require('path');
+
+devServer: {
+    // http2: true, //这里可以开启http2
+    https: {
+        key: fs.readFileSync(path.join(__dirname + "/server.key")),
+        cert: fs.readFileSync(path.join(__dirname + "/server.crt")),
+        ca: fs.readFileSync(path.join(__dirname + "/rootCA.pem")),
+    },
+    ....
+}
 ```
