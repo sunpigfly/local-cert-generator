@@ -13,6 +13,10 @@ sh createRootCA.sh
 **3 . 将刚刚生成的根证书添加到可信证书列表中。此步骤取决于您运行的操作系统：**
 
 macOS：打开Keychain Access并将根证书导入您的系统钥匙串。然后将证书标记为受信任。
+windows：只需要将根证书添加至信任库即可
+```sh
+keytool -import -v -file D:/根证书路径 -keystore E:\导出信任库路径/xxx.keystore
+```
 >注意：您可能需要重新启动浏览器才能正确加载新受信任的根证书。
 
 **4.运行脚本以创建域证书localhost：**
